@@ -1,3 +1,4 @@
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 
 namespace Laborotornaya_rabota
@@ -7,7 +8,6 @@ namespace Laborotornaya_rabota
         MenuStrip ms;
         ToolStrip ts;
         Panel panel;
-        ColorDialog cd;
         OpenFileDialog openFile;
         SaveFileDialog saveFile;
         PictureBox pb;
@@ -15,11 +15,25 @@ namespace Laborotornaya_rabota
         TrackBar tb;
         ComboBox cb;
         Label lbl;
-        
+
+        bool drawing;
+        int historyCounter;
+
+        GraphicsPath currentPath;
+        Point oldLocation;
+        public Pen currentPen;
+        Color historyColor;
+        List<Image> History;
+
+        ToolStripMenuItem Solid = new ToolStripMenuItem("Solid");
+        ToolStripMenuItem Dot = new ToolStripMenuItem("Dot");
+        ToolStripMenuItem DashDotDot = new ToolStripMenuItem("DashDotDot");
+
         public Form1()
         {
-            this.Height= 600;
-            this.Width= 850;
+            InitializeComponent();
+            this.Height = 600;
+            this.Width = 850;
             this.Text = "Graf red";
 
             Image new_file = new Bitmap("../../../new.png");
@@ -31,42 +45,39 @@ namespace Laborotornaya_rabota
             ms.Dock = DockStyle.Top;
             ToolStripMenuItem File = new ToolStripMenuItem("File");
             ToolStripMenuItem New = new ToolStripMenuItem("New", new_file);
-            ToolStripMenuItem Open = new ToolStripMenuItem("Open",open);
-            ToolStripMenuItem Save = new ToolStripMenuItem("Save",save);
-            ToolStripMenuItem Exit = new ToolStripMenuItem("Exit",exit);
+            ToolStripMenuItem Open = new ToolStripMenuItem("Open", open);
+            ToolStripMenuItem Save = new ToolStripMenuItem("Save", save);
+            ToolStripMenuItem Exit = new ToolStripMenuItem("Exit", exit);
 
             Image undo = new Bitmap("../../../Undo.png");
             Image redo = new Bitmap("../../../redo.png");
-            Image pen = new Bitmap("../../../pen.png");
+            Image penpng = new Bitmap("../../../pen.png");
             Image about = new Bitmap("../../../About.png");
 
             ToolStripMenuItem Edit = new ToolStripMenuItem("Edit");
             ToolStripMenuItem Undo = new ToolStripMenuItem("Undo", undo);
             ToolStripMenuItem Redo = new ToolStripMenuItem("Redo", redo);
-            ToolStripMenuItem Pen = new ToolStripMenuItem("Pen", pen);
-            ToolStripMenuItem Color = new ToolStripMenuItem("Color");
+            ToolStripMenuItem PenMenu = new ToolStripMenuItem("Pen", penpng);
+            ToolStripMenuItem Colors = new ToolStripMenuItem("Color");
             ToolStripMenuItem Style = new ToolStripMenuItem("Style");
-            ToolStripMenuItem Solid = new ToolStripMenuItem("Solid");
-            ToolStripMenuItem Dot = new ToolStripMenuItem("Dot");
-            ToolStripMenuItem DashDotDot = new ToolStripMenuItem("DashDotDot");
+            
             ToolStripMenuItem Help = new ToolStripMenuItem("Help");
             ToolStripMenuItem About = new ToolStripMenuItem("About", about);
 
-            Pen.DropDownItems.Add(Color);
-            Pen.DropDownItems.Add(Style);
+            PenMenu.DropDownItems.Add(Colors);
+            PenMenu.DropDownItems.Add(Style);
             Style.DropDownItems.Add(Solid);
             Style.DropDownItems.Add(Dot);
             Style.DropDownItems.Add(DashDotDot);
+            Solid.Checked = true;
 
-            Help.DropDownItems.Add(About);
             About.ShortcutKeys = Keys.F1;
-
             New.ShortcutKeys = Keys.Control | Keys.N;
             Open.ShortcutKeys = Keys.F3;
             Save.ShortcutKeys = Keys.F2;
             Exit.ShortcutKeys = Keys.Alt | Keys.X;
             Undo.ShortcutKeys = Keys.Control | Keys.Z;
-            Redo.ShortcutKeys = Keys.Control | Keys.Shift | Keys.Z;
+            Redo.ShortcutKeys = Keys.Control | Keys.Y;
 
             File.DropDownItems.Add(New);
             File.DropDownItems.Add(Open);
@@ -76,16 +87,24 @@ namespace Laborotornaya_rabota
 
             Edit.DropDownItems.Add(Undo);
             Edit.DropDownItems.Add(Redo);
-            Edit.DropDownItems.Add(Pen);
+            Edit.DropDownItems.Add(PenMenu);
             ms.Items.Add(Edit);
 
             ms.Items.Add(Help);
-            this.Controls.Add(ms);
+            Help.DropDownItems.Add(About);
 
+            this.Controls.Add(ms);
+            
             About.Click += About_Click;
             Save.Click += Save_Click;
             New.Click += New_Click;
             Open.Click += Open_Click;
+            Undo.Click += Undo_Click;
+            Redo.Click += Redo_Click;
+            Solid.Click += Solid_Click;
+            Dot.Click += Dot_Click;
+            DashDotDot.Click += DashDotDot_Click;
+            Colors.Click += Colors_Click;
 
             ts = new ToolStrip();
             ts.Items.Add(new_file);
@@ -96,45 +115,154 @@ namespace Laborotornaya_rabota
             ts.Dock = DockStyle.Left;
             this.Controls.Add(ts);
 
-            
 
             panel = new Panel();
             tb = new TrackBar();
             lbl = new Label();
-            panel.Location = new Point(ts.Width, ts.Height-50);
-            panel.Size = new Size(Width-75, 28);
-            panel.BorderStyle= BorderStyle.Fixed3D;
+            panel.Location = new Point(ts.Width, ts.Height - 50);
+            panel.Size = new Size(Width - 75, 28);
+            panel.BorderStyle = BorderStyle.Fixed3D;
 
             tb.Size = new Size(panel.Width / 3, panel.Height);
             tb.Location = new Point(514, 0);
+            tb.SetRange(1,50);
 
             lbl.Text = tb.Value.ToString();
             tb.Scroll += Tb_Scroll;
             panel.Controls.Add(lbl);
-            
+
             this.Controls.Add(panel);
             panel.Controls.Add(tb);
 
             pb = new PictureBox();
             pb.BorderStyle = BorderStyle.Fixed3D;
             pb.Location = new Point(ts.Width, ms.Height);
-            pb.Size = new Size(775,480);
+            pb.Size = new Size(775, 480);
 
             this.Controls.Add(pb);
 
-            Image pic = new Bitmap(775, 480);
-            pb.Image = pic;
+            
+            drawing = false;
+            currentPen = new Pen(Color.Black);
+            currentPen.Width = tb.Value;
+            pb.Image = null;
 
-            //переместить в pb MouseDown (MouseDown надо создать)
+            pb.MouseDown += Pb_MouseDown;
+            pb.MouseUp += Pb_MouseUp;
+            pb.MouseMove += Pb_MouseMove;
+
+            tb.Scroll += Tb_Scroll1;
+
+            History = new List<Image>();
+            
+        }
+
+        private void Colors_Click(object? sender, EventArgs e)
+        {
+            ColorsForm colorsForm = new ColorsForm(currentPen.Color);
+            colorsForm.Owner = this;
+            colorsForm.ShowDialog();
+        }
+
+        private void DashDotDot_Click(object? sender, EventArgs e)
+        {
+            currentPen.DashStyle = DashStyle.DashDotDot;
+
+            Solid.Checked = false;
+            Dot.Checked = false;
+            DashDotDot.Checked = true;
+        }
+
+        private void Dot_Click(object? sender, EventArgs e)
+        {
+            currentPen.DashStyle = DashStyle.Dot;
+
+            Solid.Checked = false;
+            Dot.Checked = true;
+            DashDotDot.Checked = false;
+        }
+
+        private void Solid_Click(object? sender, EventArgs e)
+        {
+            currentPen.DashStyle = DashStyle.Solid;
+
+            Solid.Checked = true;
+            Dot.Checked = false;
+            DashDotDot.Checked = false;
+        }
+
+        private void Redo_Click(object? sender, EventArgs e)
+        {
+            if (historyCounter < History.Count - 1)
+            {
+                pb.Image = new Bitmap(History[++historyCounter]);
+            }
+            else MessageBox.Show("Ajalugu pole");
+        }
+
+        private void Undo_Click(object? sender, EventArgs e)
+        {
+            if (History.Count != 0 && historyCounter != 0)
+            {
+                pb.Image = new Bitmap(History[--historyCounter]);
+            }
+            else MessageBox.Show("Ajalugu pole");
+        }
+
+        private void Tb_Scroll1(object? sender, EventArgs e)
+        {
+            currentPen.Width = tb.Value;
+        }
+
+        private void Pb_MouseMove(object? sender, MouseEventArgs e)
+        {
+            if(drawing)
+            {
+                Graphics g = Graphics.FromImage(pb.Image);
+                currentPath.AddLine(oldLocation, e.Location);
+                g.DrawPath(currentPen,currentPath);
+                oldLocation = e.Location;
+                g.Dispose();
+                pb.Invalidate();
+            }
+        }
+
+        private void Pb_MouseUp(object? sender, MouseEventArgs e)
+        {
+            History.RemoveRange(historyCounter + 1, History.Count - historyCounter - 1);
+            History.Add(new Bitmap(pb.Image));
+            if (historyCounter + 1 < 10) historyCounter++;
+            if (History.Count - 1 == 10) History.RemoveAt(0);
+            drawing = false;
+            try
+            {
+                currentPath.Dispose();
+            }
+            catch { };
+        }
+
+        private void Pb_MouseDown(object? sender, MouseEventArgs e)
+        {
             if (pb.Image == null)
             {
                 MessageBox.Show("You need create a new file!");
                 return;
             }
+            if(e.Button == MouseButtons.Left)
+            {
+                drawing = true;
+                oldLocation = e.Location;
+                currentPath = new GraphicsPath();
+            }
         }
 
         private void New_Click(object? sender, EventArgs e)
         {
+            History.Clear();
+            historyCounter = 0;
+            Bitmap pic = new Bitmap(775, 480);
+            pb.Image = pic;
+            History.Add(new Bitmap(pb.Image));
             if (pb.Image != null)
             {
                 var result = MessageBox.Show("Сохранить текущее изображение перед созданием нового рисунка?", "Предупреждение", MessageBoxButtons.YesNoCancel);
@@ -153,7 +281,7 @@ namespace Laborotornaya_rabota
             OP.Filter = "PNG Image|*.png |JPEG Image|*.jpg |Bitmap Image|*.bmp |Gif Image|*.gif";
             OP.Title = "Open an image file";
             OP.FilterIndex = 1;
-            if(OP.ShowDialog() != DialogResult.Cancel)
+            if (OP.ShowDialog() != DialogResult.Cancel)
             {
                 pb.Load(OP.FileName);
             }

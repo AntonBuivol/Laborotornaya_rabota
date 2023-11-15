@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -18,7 +18,6 @@ namespace Laborotornaya_rabota
         Label redlbl, greenlbl, bluelbl;
         Button okbtn, cancelbtn, otherbtn;
         Color colorResult;
-        Form1 main;
 
         public ColorsForm(Color color)
         {
@@ -148,7 +147,7 @@ namespace Laborotornaya_rabota
             otherbtn.Click += Otherbtn_Click;
             cancelbtn.Click += Cancelbtn_Click;
 
-            main = this.Owner as Form1;
+            
         }
 
         private void Cancelbtn_Click(object? sender, EventArgs e)
@@ -158,8 +157,8 @@ namespace Laborotornaya_rabota
 
         private void Okbtn_Click(object? sender, EventArgs e)
         {
-            UpdateColor();
-            
+            Form1 main = this.Owner as Form1;
+            main.currentPen.Color = colorResult;
             this.Close();
         }
 

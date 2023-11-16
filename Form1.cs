@@ -453,31 +453,24 @@ namespace Laborotornaya_rabota
             
             if (SaveDlg.FileName != "")
             {
-                if (System.IO.File.Exists(SaveDlg.FileName))
-                {
-                        
-                }
-                else 
-                {
-                    System.IO.FileStream fs = (System.IO.FileStream)SaveDlg.OpenFile();
+                System.IO.FileStream fs = (System.IO.FileStream)SaveDlg.OpenFile();
 
-                    switch (SaveDlg.FilterIndex)
-                    {
-                        case 1:
-                            this.pb.Image.Save(fs, ImageFormat.Png);
-                            break;
-                        case 2:
-                            this.pb.Image.Save(fs, ImageFormat.Jpeg);
-                            break;
-                        case 3:
-                            this.pb.Image.Save(fs, ImageFormat.Bmp);
-                            break;
-                        case 4:
-                            this.pb.Image.Save(fs, ImageFormat.Gif);
-                            break;
-                    }
-                    fs.Close();
+                switch (SaveDlg.FilterIndex)
+                {
+                    case 1:
+                        this.pb.Image.Save(fs, ImageFormat.Png);
+                        break;
+                    case 2:
+                        this.pb.Image.Save(fs, ImageFormat.Jpeg);
+                        break;
+                    case 3:
+                        this.pb.Image.Save(fs, ImageFormat.Bmp);
+                        break;
+                    case 4:
+                        this.pb.Image.Save(fs, ImageFormat.Gif);
+                        break;
                 }
+                fs.Close();
             }
         }
 
@@ -488,10 +481,6 @@ namespace Laborotornaya_rabota
             SaveDlg.Title = "Save an image file";
             SaveDlg.FilterIndex = 1;
             SaveDlg.ShowDialog();
-            if (System.IO.File.Exists(SaveDlg.FileName))
-            {
-
-            }
             if (SaveDlg.FileName != "")
             {
                 

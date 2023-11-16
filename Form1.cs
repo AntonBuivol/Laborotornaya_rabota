@@ -287,7 +287,7 @@ namespace Laborotornaya_rabota
         {
             if (pb.Image == null)
             {
-                MessageBox.Show("You need create a new file!");
+                MessageBox.Show("Peate looma uue faili!");
                 return;
             }
             if(e.Button == MouseButtons.Left)
@@ -303,7 +303,7 @@ namespace Laborotornaya_rabota
         {
             if (pb.Image != null)
             {
-                var result = MessageBox.Show("Сохранить текущее изображение перед созданием нового рисунка?", "Предупреждение", MessageBoxButtons.YesNoCancel);
+                var result = MessageBox.Show("Kas salvestada praegune pilt enne sulgemist?", "Hoiatus", MessageBoxButtons.YesNoCancel);
                 switch (result)
                 {
                     case DialogResult.No: break;
@@ -318,7 +318,7 @@ namespace Laborotornaya_rabota
         {
             if (pb.Image != null)
             {
-                var result = MessageBox.Show("Сохранить текущее изображение перед созданием нового рисунка?", "Предупреждение", MessageBoxButtons.YesNoCancel);
+                var result = MessageBox.Show("Kas salvestada praegune pilt enne sulgemist?", "Hoiatus", MessageBoxButtons.YesNoCancel);
                 switch (result)
                 {
                     case DialogResult.No: break;
@@ -349,7 +349,7 @@ namespace Laborotornaya_rabota
             historyCounter = 0;
             if (pb.Image != null)
             {
-                var result = MessageBox.Show("Сохранить текущее изображение перед созданием нового рисунка?", "Предупреждение", MessageBoxButtons.YesNoCancel);
+                var result = MessageBox.Show("Kas peaksin praeguse pildi enne uue loomist salvestama?", "Hoiatus", MessageBoxButtons.YesNoCancel);
                 switch (result)
                 {
                     case DialogResult.No: break;
@@ -370,7 +370,7 @@ namespace Laborotornaya_rabota
             
             if (pb.Image != null)
             {
-                var result = MessageBox.Show("Сохранить текущее изображение перед созданием нового рисунка?", "Предупреждение", MessageBoxButtons.YesNoCancel);
+                var result = MessageBox.Show("Kas peaksin praeguse pildi enne uue loomist salvestama?", "Hoiatus", MessageBoxButtons.YesNoCancel);
                 switch (result)
                 {
                     case DialogResult.No: break;
@@ -388,7 +388,7 @@ namespace Laborotornaya_rabota
         {
             if (pb.Image != null)
             {
-                var result = MessageBox.Show("Сохранить текущее изображение перед созданием нового рисунка?", "Предупреждение", MessageBoxButtons.YesNoCancel);
+                var result = MessageBox.Show("Kas salvestada praegune pilt enne?", "Hoiatus", MessageBoxButtons.YesNoCancel);
                 switch (result)
                 {
                     case DialogResult.No: break;
@@ -417,7 +417,7 @@ namespace Laborotornaya_rabota
         {
             if (pb.Image != null)
             {
-                var result = MessageBox.Show("Сохранить текущее изображение перед созданием нового рисунка?", "Предупреждение", MessageBoxButtons.YesNoCancel);
+                var result = MessageBox.Show("Kas salvestada praegune pilt enne?", "Hoiatus", MessageBoxButtons.YesNoCancel);
                 switch (result)
                 {
                     case DialogResult.No: break;
@@ -518,7 +518,7 @@ namespace Laborotornaya_rabota
 
         private void About_Click(object? sender, EventArgs e)
         {
-            MessageBox.Show("Avtor: Anton Buivol\nVersion 0.1\nMozhno Nazhimat na knopki", "About", MessageBoxButtons.OK);
+            MessageBox.Show("Avtor: Anton Buivol\nKlahvikombinatsioon \nPildi suurendamiseks/vähendamiseks: ctrl + hiire parem nupp\nSalvestage fail: ctrl + S", "About", MessageBoxButtons.OK);
         }
 
         private void Tb_Scroll(object? sender, EventArgs e)
